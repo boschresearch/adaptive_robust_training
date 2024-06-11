@@ -1,0 +1,103 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: cifar10.yaml
+  - override /model: eps_ibp_cifar10_bn.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+
+seed: 100
+
+trainer:
+  devices: 1
+  accelerator: gpu
+  strategy: null
+  auto_select_gpus: true
+
+  min_epochs: 160
+  max_epochs: 200
+
+  gradient_clip_val: 10.0
+  gradient_clip_algorithm: norm
+  track_grad_norm: 2.0
+  check_val_every_n_epoch: 1
+
+datamodule:
+  batch_size: 128
+  num_workers: 8
+
+model:
+  kappa: 0.25
+  init_method: ibp
+  num_stn_epochs: 1
+  num_reg_epochs: 80 
+
+  weight_decay_l1: 0.0
+  min_eps_for_regularizers: 1.e-6
+  reg_clip_with_robust: True
+  reg_tight_weight: 0.5
+  reg_relu_weight: 0.5
+  
+  optimizer:
+    name: Adam
+    amsgrad: false
+    lr: 2.e-3   # 5.e-4   # 0.001
+    weight_decay: 0.0
+
+  lr_scheduler:
+    name: OneCycleLR
+    max_lr: 2.e-3
+    # total_steps: 78200
+    epochs: 200
+    steps_per_epoch: 391
+    pct_start: 0.3
+    anneal_strategy: linear          # cos
+    div_factor: 25.0              # init_lr = max_lr / div_factor
+    final_div_factor: 100.      # min_lr = max_lr / final_div_factor
+    three_phase: True
+    interval: step   # step
+
+    # name: MultiStepLR
+    # milestones: [120, 140]
+    # gamma: 0.2
+    # interval: epoch   # step
+
+  # eps test
+  eps_test: [0.00784313725, 0.031372549]    # 2/255, 8/255, 16/255
+  # epsilon finding in train step
+  max_eps: 0.0345098039 # = 8.8/255  # 0.0690196078 = 17.6/255
+  xtol: 1.e-6
+  rtol: 1.e-4
+  maxiter: 10
+  ftol: 1.e-5
+  
+  # loss function
+  standard_loss: CrossEntropy
+  standard_label_smoothing: 0.0
+  robust_loss: CrossEntropy
+  robust_label_smoothing: 0.0
+
+callbacks:
+  model_checkpoint:
+    monitor: "val/acceps"
+    dirpath: ${paths.output_dir}/../../checkpoints/kappa=${model.kappa}
+    # filename: "epoch={epoch:04d}-step={step}-val_acceps={val/acceps:.4f}"
+    filename: "best_acceps"
+    mode: "max"
+    save_last: True
+    auto_insert_metric_name: False
+    verbose: True
+    save_top_k: 1
+
+  early_stopping:
+    monitor: "val/acceps"
+    patience: 150
+    mode: "max"
+  
+tags: ["cifar10", "cnn7", ]
+
+task_name: "train/eps_ibp_cifar10"
+

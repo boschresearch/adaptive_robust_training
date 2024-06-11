@@ -1,0 +1,98 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: tinyimagenet.yaml
+  - override /model: fast_ibp_tinyimagenet.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+
+seed: 100
+
+trainer:
+  devices: 1
+  accelerator: gpu
+  strategy: null
+  auto_select_gpus: true
+
+  min_epochs: 160
+  max_epochs: 200
+  
+  gradient_clip_val: 10.0
+  gradient_clip_algorithm: norm
+  track_grad_norm: 2.0
+  check_val_every_n_epoch: 1
+
+datamodule:
+  batch_size: 256
+  num_workers: 8
+
+model:
+  kappa: 0.0
+  init_method: ibp
+  schedule_start: 1
+  schedule_length: 80
+
+  weight_decay_l1: 1.e-4
+  min_eps_for_regularizers: 1.e-6
+  reg_tight_weight: 0.2
+  reg_relu_weight: 0.2
+
+  optimizer:
+    name: Adam
+    amsgrad: false
+    lr: 5.e-4
+    weight_decay: 0.0
+
+  lr_scheduler:
+    # name: OneCycleLR
+    # max_lr: 1.e-3
+    # total_steps: 160000
+    # pct_start: 0.3
+    # anneal_strategy: linear          # cos
+    # div_factor: 15.0              # init_lr = max_lr / div_factor
+    # final_div_factor: 1000.      # min_lr = max_lr / final_div_factor
+    # three_phase: False
+    # interval: step   # step
+
+    name: MultiStepLR
+    milestones: [120, 140]
+    gamma: 0.2
+    interval: epoch   # step
+
+  eps_test: [0.00392156863]    # 1/255
+  # epsilon finding
+  max_eps: 0.00392156863 # ~1/255
+  xtol: 1.e-8
+  rtol: 1.e-5
+  maxiter: 100
+  ftol: 1.e-8
+  
+  # loss function
+  standard_loss: CrossEntropy
+  standard_label_smoothing: 0.0
+  robust_loss: CrossEntropy
+  robust_label_smoothing: 0.0
+
+callbacks:
+  model_checkpoint:
+    monitor: "val/acceps"
+    dirpath: ${paths.output_dir}/../../checkpoints/kappa=${model.kappa}
+    # filename: "epoch={epoch:04d}-step={step}-val_acceps={val/acceps:.4f}"
+    filename: "best_acceps"
+    mode: "max"
+    save_last: True
+    auto_insert_metric_name: False
+    verbose: True
+    save_top_k: 1
+
+  early_stopping:
+    monitor: "val/acceps"
+    patience: 70
+    mode: "max"
+
+tags: ["tinyimagenet", "cnn7", "fastibp", ]
+
+task_name: "train/fast_ibp_tinyimagenet"

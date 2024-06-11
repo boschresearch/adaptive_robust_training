@@ -1,0 +1,37 @@
+_target_: src.models.eps_ibp_module.EpsIBP
+
+net:
+  _target_: src.models.components.dm_models.cnn
+  input_ch: 1
+  input_dim: 28
+
+# Params for computing bounds in BoundedModule
+input_shape: [1, 28, 28]
+num_classes: 10
+data_mean: [0.0, ]
+data_std: [1.0, ]
+bound_norm: .inf
+bound_method: IBP
+
+eps_test: [0.3, 0.4]
+
+max_eps: 0.4
+xtol: 1.e-8
+rtol: 1.e-5
+maxiter: 100
+ftol: 1.e-8
+
+# Loss function params
+standard_loss: CrossEntropy
+standard_label_smoothing: 0.0
+robust_loss: CrossEntropy
+robust_label_smoothing: 0.0
+
+# Optimzer and LR scheduler
+optimizer: 
+  name: Adam
+  amsgrad: false
+  lr: 0.001
+  weight_decay: 0.0
+
+init_method: "ibp"

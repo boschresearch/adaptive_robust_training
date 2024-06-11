@@ -1,0 +1,22 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/eval.py experiment=eval/crown_ibp_cifar10
+
+defaults:
+  - override /datamodule: cifar10.yaml
+  - override /model: fast_ibp_cifar10.yaml
+
+model:
+  init_method: null
+  # Neural network architecture
+  net:
+    _target_: src.models.components.dm_models.DMLarge
+    input_ch: 3
+    input_dim: 32
+
+# task name defines the output dir, e.g. "logs/${task_name}/runs/${now:date}"
+task_name: "eval/crown_ibp_cifar10"
+
+# ckpt_path: "logs/weights/CrownIBP_dm-large/cifar_dm-large_8_255/IBP_large_best.pth"
+ckpt_path: ??

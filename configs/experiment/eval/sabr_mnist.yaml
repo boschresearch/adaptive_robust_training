@@ -1,0 +1,18 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/eval.py experiment=eval/sabr_mnist
+
+defaults:
+  - override /datamodule: mnist.yaml
+  - override /model: sabr_mnist.yaml
+
+model:
+  init_method: null
+
+# task name defines the output dir, e.g. "logs/${task_name}/runs/${now:date}"
+task_name: "eval/sabr_mnist"
+
+# ckpt_path: "logs/weights/SABR/SABR_mnist_03_best.pynet"
+
+ckpt_path: ??

@@ -1,0 +1,9 @@
+_target_: src.datamodules.cifar10_datamodule.CIFAR10DataModule
+data_dir: ${paths.data_dir}
+# data_dir: ${oc.env:CIFAR_DATA_DIR}
+batch_size: 125
+train_val_split: [45_000, 5_000]
+num_workers: 0
+pin_memory: False
+data_mean: [0.4914, 0.4822, 0.4465]
+data_std: [0.2023, 0.1994, 0.2010]

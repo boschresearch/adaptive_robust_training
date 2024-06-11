@@ -1,0 +1,90 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: mnist.yaml
+  - override /model: fast_ibp_mnist.yaml
+  - override /callbacks: default.yaml
+  - override /trainer: default.yaml
+
+seed: 100
+
+trainer:
+  devices: 1
+  accelerator: gpu
+  strategy: null
+  auto_select_gpus: true
+
+  min_epochs: 80
+  max_epochs: 100
+
+  gradient_clip_val: 10.0
+  gradient_clip_algorithm: norm
+  track_grad_norm: 2.0
+  check_val_every_n_epoch: 1
+
+datamodule:
+  batch_size: 128
+  num_workers: 8
+
+model:
+  kappa: 0.0
+  init_method: ibp
+  schedule_start: 2
+  schedule_length: 20
+
+  weight_decay_l1: 0.0
+  min_eps_for_regularizers: 1.e-6
+  reg_tight_weight: 0.5
+  reg_relu_weight: 0.5
+  
+  optimizer:
+    name: Adam
+    amsgrad: false
+    lr: 5.e-4   # 5.e-4   # 0.001
+    weight_decay: 0.0
+
+  lr_scheduler:
+    name: MultiStepLR
+    milestones: [60, 70]
+    gamma: 0.2
+    interval: epoch   # step
+
+  # eps test
+  eps_test: [0.3, 0.4]
+  # epsilon finding
+  max_eps: 0.4
+  xtol: 1.e-8
+  rtol: 1.e-5
+  maxiter: 100
+  ftol: 1.e-8
+  
+  # loss function
+  standard_loss: CrossEntropy
+  standard_label_smoothing: 0.0
+  robust_loss: CrossEntropy
+  robust_label_smoothing: 0.0
+
+callbacks:
+  model_checkpoint:
+    monitor: "val/acceps"
+    dirpath: ${paths.output_dir}/../../checkpoints/kappa=${model.kappa}
+    # filename: "epoch={epoch:04d}-step={step}-val_acceps={val/acceps:.4f}"
+    filename: "best_acceps"
+    mode: "max"
+    save_last: True
+    auto_insert_metric_name: False
+    verbose: True
+    save_top_k: 1
+
+  early_stopping:
+    monitor: "val/acceps"
+    patience: 50
+    mode: "max"
+  
+tags: ["mnist", "cnn7", "fastibp"]
+
+task_name: "train/fast_ibp_mnist"
+

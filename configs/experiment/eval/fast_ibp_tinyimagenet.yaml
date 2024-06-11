@@ -1,0 +1,18 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/eval.py experiment=eval/fast_ibp_tinyimagenet
+
+defaults:
+  - override /datamodule: tinyimagenet.yaml
+  - override /model: fast_ibp_tinyimagenet.yaml
+
+model:
+  init_method: null
+
+# task name defines the output dir, e.g. "logs/${task_name}/runs/${now:date}"
+task_name: "eval/fast_ibp_tinyimagenet/kappa=${model.kappa}"
+
+# ckpt_path: "logs/weights/FastIBP/tinyimagenet_cnn_80epochs/ckpt_best"
+
+ckpt_path: ??

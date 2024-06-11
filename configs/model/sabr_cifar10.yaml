@@ -1,0 +1,36 @@
+_target_: src.models.sabr_module.SABRModule
+
+net:
+  _target_: src.models.components.dm_models.cnn_7layer_bn_wolast
+  input_ch: 3
+  input_dim: 32
+
+# Params for computing bounds in BoundedModule
+input_shape: [3, 32, 32]
+num_classes: 10
+data_mean: ${datamodule.data_mean}
+data_std: ${datamodule.data_std}
+bound_norm: .inf
+bound_method: IBP
+
+eps_test: [0.00784313725, 0.031372549]    # 2/255, 8/255
+
+max_eps: 0.0345098039 # 8.8/255
+xtol: 1.e-8
+rtol: 1.e-5
+maxiter: 100
+ftol: 1.e-8
+
+# Loss function params
+standard_loss: CrossEntropy
+standard_label_smoothing: 0.0
+robust_loss: CrossEntropy
+robust_label_smoothing: 0.0
+
+# Optimzer and LR scheduler
+optimizer: 
+  name: Adam
+  lr: 0.001
+  weight_decay: 0.0
+
+init_method: "ibp"

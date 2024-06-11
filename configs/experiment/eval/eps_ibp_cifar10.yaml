@@ -1,0 +1,18 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/eval.py experiment=eval/eps_ibp_cifar10
+
+defaults:
+  - override /datamodule: cifar10.yaml
+  - override /model: eps_ibp_cifar10_bn.yaml
+
+model:
+  init_method: null
+  kappa: 0.25
+
+# task name defines the output dir, e.g. "logs/${task_name}/runs/${now:date}"
+
+task_name: "eval/eps_ibp_cifar10/kappa=${model.kappa}"
+
+ckpt_path: "logs/train/eps_ibp_cifar10/checkpoints/kappa=${model.kappa}/best_acceps.ckpt"

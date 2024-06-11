@@ -1,0 +1,17 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/eval.py experiment=eval/eps_ibp_mnist
+
+defaults:
+  - override /datamodule: mnist.yaml
+  - override /model: eps_ibp_mnist_bn.yaml
+
+model:
+  init_method: null
+  kappa: 0.0
+
+# task name defines the output dir, e.g. "logs/${task_name}/runs/${now:date}"
+task_name: "eval/eps_ibp_mnist/kappa=${model.kappa}"
+
+ckpt_path: "logs/train/eps_ibp_mnist/checkpoints/kappa=${model.kappa}/best_acceps.ckpt"

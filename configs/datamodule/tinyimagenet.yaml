@@ -1,0 +1,9 @@
+_target_: src.datamodules.tinyimagenet_datamodule.TinyImageNetDataModule
+data_dir: ${paths.data_dir}
+# data_dir: ${oc.env:TINYIMAGENET_DATA_DIR}
+batch_size: 125
+train_val_split: [95_000, 5_000]
+num_workers: 0
+pin_memory: False
+data_mean: [0.4802, 0.4481, 0.3975]
+data_std: [0.2302, 0.2265, 0.2262]

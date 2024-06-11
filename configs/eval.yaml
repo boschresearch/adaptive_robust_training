@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - datamodule: mnist.yaml # choose datamodule with `test_dataloader()` for evaluation
+  - model: eps_ibp_mnist_bn.yaml
+  - logger: csv
+  - trainer: default.yaml
+  - paths: default.yaml
+  - extras: default.yaml
+  - hydra: default.yaml
+  - experiment: null
+
+task_name: "eval"
+
+tags: ["dev"]
+
+# passing checkpoint path is necessary for evaluation
+ckpt_path: ???
